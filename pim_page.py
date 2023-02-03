@@ -148,5 +148,85 @@ class PimTest(unittest.TestCase):
         cls.driver.close()
         cls.driver.quit()
         print("Test Completed")
+    def test_employee_job_details_page(self):
+        driver = self.driver
+        employee_job_details_page = EmployeePageElements(driver)
+        employee_job_details_page.click_employee_job_details()
+        employee_job_details_page.enter_joint_date("2022-02-02")
+        employee_job_details_page.select_job_title_dropdown("QA Lead")
+        employee_job_details_page.select_job_category_dropdown("Professionals")
+        employee_job_details_page.select_sub_unit_dropdown("Quality Assurance")
+        employee_job_details_page.select_location_dropdown("New York Sales Office")
+        employee_job_details_page.select_employment_status_dropdown("Full-Time Permanent")
+        employee_job_details_page.click_employee_contract_toggle_button()
+        employee_job_details_page.enter_employee_contract_start_end_date("2023-01-01", "2023-12-12")
+        employee_job_details_page.job_save()
 
+
+    def test_validate_employee_job_details_termination_page(self):
+        driver = self.driver
+        termination_and_activation_page = EmployeePageElements(driver)
+        termination_and_activation_page.click_employee_termination_and_activation_button()
+        WebDriverWait(driver, 10).until(expected_conditions.presence_of_element_located
+                                        ((By.XPATH, "//label[contains(text(),'TerminationDate')]/parent::div/" \
+                                          "following-sibling::div//div/div/input ")))
+        termination_and_activation_page.enter_employee_termination_date("2023-05-05")
+        termination_and_activation_page.select_employee_termination_reason_dropdown("Contract Not Renewed")
+        termination_and_activation_page.click_employee_required_save()
+        WebDriverWait(driver, 10).until(expected_conditions.text_to_be_present_in_element(
+            (By.XPATH, "//h6[text()='Employee Termination / Activiation']/following-sibling::button"), "Activate Employment"))
+        visible_activation_button = driver.find_element(By.XPATH,"//h6[text()='Employee Termination / Activiation']" \
+                                                    " /following-sibling::button").text
+
+        assert visible_activation_button == "Activate Employment"
+
+    def test_activation_employment_page(self):
+        driver = self.driver
+        activation_employment = EmployeePageElements(driver)
+        activation_employment.click_employee_termination_and_activation_button()
+        WebDriverWait(driver, 10).until(expected_conditions.text_to_be_present_in_element(
+            (By.XPATH,"//h6[text()='Employee Termination / Activiation']/following-sibling::button"), "Terminate Employment"))
+        visible_terminate_employment_button = driver.find_element(By.XPATH,"//h6[text()='Employee Termination / Activiation']" \
+                                                                  "/following-sibling::button") .text
+        assert visible_terminate_employment_button == "Terminate Employment"
+
+    def test_validate_employee_salary_page(self):
+        driver = self.driver
+        employee_salary_page = EmployeePageElements(driver)
+        employee_salary_page.click_employee_salary_component_tap()
+        employee_salary_page.click_assigned_salary_component()
+        WebDriverWait(driver, 10).until(expected_conditions.text_to_be_present_in_element(
+            (By.XPATH, "//h6[text()=' Add Salary Component ']"), "Add Salary Component"))
+        employee_salary_page.enter_employee_salary_component("XXX")
+        employee_salary_page.select_pay_grade_dropdown("Grade 1")
+        WebDriverWait(driver, 10).until(expected_conditions.presence_of_element_located
+                                        ((By.XPATH,"//label[text()='Currency']/../following-sibling::div/div" \
+                                         "//following-sibling::div ")))
+        employee_salary_page.select_pay_frequency_dropdown("Monthly")
+        employee_salary_page.select_currency_dropdown("Indian Rupee")
+        employee_salary_page.enter_employee_salary_amount("5000")
+        employee_salary_page.click_direct_deposit_details_toggle_button()
+        employee_salary_page.enter_bank_account_number("AC-123456789")
+        employee_salary_page.select_bank_account_type_dropdown("Savings")
+        employee_salary_page.enter_bank_routing_number("123456789")
+        employee_salary_page.enter_deposit_amount("5000")
+        employee_salary_page.click_employee_required_save()
+        WebDriverWait(driver, 10).until(expected_conditions.text_to_be_present_in_element(
+            (By.XPATH, "//div[text()='Salary Component']"), "Salary Component"))
+        record_found = driver.find_element(By.XPATH, "//div[text()='Salary Component']")
+        assert record_found.text == "Salary Component"
+
+    def test_11_validate_tax_exemptions_page(self):  # Test Case ID TC_PIM_13
+        driver = self.driver
+        tax_exemptions_page = EmployeePageElements(driver)
+        tax_exemptions_page.click_employee_stax_exemptions_tap()
+        WebDriverWait(driver, 10).until(expected_conditions.presence_of_element_located
+                                        ((By.XPATH,"//label[text()='Unemployment " \
+                                                      "State']/../../../preceding-sibling::div[2]/div/div/div/*/*/* ")))
+        tax_exemptions_page.select_federal_income_tax_status_dropdown("Married")
+        tax_exemptions_page.select_state_income_tax_state_dropdown("Alaska")
+        tax_exemptions_page.select_state_income_tax_status_dropdown("Married")
+        tax_exemptions_page.select_state_income_tax_unemployment_state_dropdown("Alabama")
+        tax_exemptions_page.select_state_income_tax_work_state_dropdown("Alabama")
+        tax_exemptions_page.click_save_button()
 
